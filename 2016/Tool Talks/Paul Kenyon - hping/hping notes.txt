@@ -1,0 +1,65 @@
+Tool Talks
+
+Oct 2016 - hping -
+
+Other ideas:
+p0f
+
+
+hping notes:
+By Salvatore Sanfilippo (antirez) - Italian, Redis maintainer.
+"TCP/IP packet assembler/analyzer" inspired by ping.
+- Protocols:
+- Resources - hping.org
+Install: apt install hping3
+-or-
+git clone hping && ./configure && make install
+
+Ars - Core packet assembly/disassembly library
+APD - "Ars Packet Description" - packet description parameter specification
+
+Commands:
+hping resolve <hostname>
+hping send {ip(daddr=192.168.42.1)+icmp(type=8,code=0)}
+hping send {ip(daddr=127.0.0.1)+icmp(type=8,code=0)}
+
+foreach i [list 5 6 7 8 9 10] {
+    hping send "ip(daddr=192.168.1.8,ttl=$i)+icmp(type=8,code=0)"
+}
+
+Example APD:
+ip(ihl=0x5,ver=0x4,tos=0x00,totlen=52,id=28880,fragoff=0,mf=0,df=1,rf=0,ttl=64,
+ proto=6,cksum=0x5bbe,saddr=192.168.1.6,daddr=213.28.116.205)+tcp(sport=32857,
+ dport=6667,seq=1804471615,ack=3634589598,x2=0x0,off=8,flags=a,win=62694,
+ cksum=0xda46,urp=0)+tcp.nop()+tcp.nop()+tcp.timestamp(val=54111314,ecr=1049055856)
+
+bash$ hping3 exec myscript.htcl
+
+hping recv eth0
+
+while 1 {
+    set p [lindex [hping recv en0] 0]
+    puts "[hping getfield ip saddr $p] -> [hping getfield ip ttl $p]"
+}
+  * Returns a TCL list
+  * APD format - may be easily manipulated and resent out with "hping send"
+
+
+
+*************************
+Before Talk!
+*************************
+- Bring Mac Video Adapters
+
+
+Paul-ACT-Air-2:~ paul$ sudo hping3
+Password:
+hping3> hping send {ip(daddr=23.0.250.164)+icmp(type=8,code=0)}
+hping3>
+
+
+Paul-ACT-Air-2:~ paul$ sudo tcpdump -n -i lo0
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on lo0, link-type NULL (BSD loopback), capture size 65535 bytes
+18:21:16.344079 IP 192.168.0.1 > 23.0.250.164: ICMP echo request, id 0, seq 0, length 8
+18:21:16.344103 IP 23.0.250.164 > 192.168.0.1: ICMP echo reply, id 0, seq 0, length 8
